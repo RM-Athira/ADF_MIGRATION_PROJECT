@@ -1,0 +1,93 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "VB-PROJ-DF"
+		},
+		"LS_REST_ADLS_SINK_accountKey": {
+			"value": ""
+		},
+		"LS_SNOWFLAKE_password": {
+			"value": ""
+		},
+		"LS_SQLSERVER_TBL_password": {
+			"value": ""
+		},
+		"LS_SQL_ADLS_SINL_accountKey": {
+			"value": ""
+		},
+		"LS_SQL_DB_password": {
+			"value": ""
+		},
+		"LS_SQL_SRC_DB_2_password": {
+			"value": ""
+		},
+		"LS_SQL_SRC_password": {
+			"value": ""
+		},
+		"LS_SQL_ADLS_SINK_accountKey": {
+			"value": ""
+		},
+		"LS_BLOB_SNOW_SINK_sasUri": {
+			"value": ""
+		},
+		"LS_REST_ADLS_SINK_properties_typeProperties_url": {
+			"value": "https://vbprojectadlsstorage.dfs.core.windows.net/"
+		},
+		"LS_REST_SRC_properties_typeProperties_url": {
+			"value": "https://retoolapi.dev/hAW3Ms/data"
+		},
+		"LS_SNOWFLAKE_properties_typeProperties_database": {
+			"value": "DBAZURESNOW"
+		},
+		"LS_SQLSERVER_TBL_properties_typeProperties_server": {
+			"value": "DESKTOP-HJQ2IDT\\SQLEXPRESS"
+		},
+		"LS_SQLSERVER_TBL_properties_typeProperties_database": {
+			"value": "VB_PROJECT"
+		},
+		"LS_SQLSERVER_TBL_properties_typeProperties_userName": {
+			"value": "Admin"
+		},
+		"LS_SQL_ADLS_SINL_properties_typeProperties_url": {
+			"value": "https://vbadlssqlsource.dfs.core.windows.net/"
+		},
+		"LS_SQL_DB_properties_typeProperties_server": {
+			"value": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_SQL_DB_properties_typeProperties_database": {
+			"value": " sql-server-db-dev"
+		},
+		"LS_SQL_DB_properties_typeProperties_userName": {
+			"value": "vb_admin"
+		},
+		"LS_SQL_SRC_DB_2_properties_typeProperties_server": {
+			"value": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_SQL_SRC_DB_2_properties_typeProperties_database": {
+			"value": " sql-server-db-dev"
+		},
+		"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
+			"value": "vb_admin"
+		},
+		"LS_SQL_SRC_properties_typeProperties_server": {
+			"value": "DESKTOP-HJQ2IDT\\SQLEXPRESS"
+		},
+		"LS_SQL_SRC_properties_typeProperties_database": {
+			"value": "VB_PROJECT"
+		},
+		"LS_SQL_SRC_properties_typeProperties_userName": {
+			"value": "Admin"
+		},
+		"LS_SQL_ADLS_SINK_properties_typeProperties_url": {
+			"value": "https://vbprojectadlsstorage.dfs.core.windows.net/"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
