@@ -1,0 +1,15 @@
+{
+	"name": "VB-PROJ-DF",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "529a4b56-2f12-4f25-b5f6-7c92ccf86cde",
+		"tenantId": "d9730b3e-7bb0-4272-bd60-517ee2e21946"
+	}
+}

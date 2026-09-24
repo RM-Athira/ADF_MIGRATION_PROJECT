@@ -1,0 +1,21 @@
+{
+	"name": "LS_SQLSERVER_TBL",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "DESKTOP-HJQ2IDT\\SQLEXPRESS",
+			"database": "VB_PROJECT",
+			"encrypt": "mandatory",
+			"trustServerCertificate": true,
+			"authenticationType": "SQL",
+			"userName": "Admin",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJhYTVhYzI2Zi03ZGYzLTQ4NzQtYjU3Yy1jOWU1NDkxOWIxNzEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "selfhosterIR1",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
