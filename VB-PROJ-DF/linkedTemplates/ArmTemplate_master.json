@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQLSERVER_TBL'"
 		},
+		"LS_SQL_ADLS_SINK_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_SQL_ADLS_SINK'"
+		},
 		"LS_SQL_ADLS_SINL_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_SQL_ADLS_SINL'"
@@ -27,17 +31,17 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQL_DB'"
 		},
-		"LS_SQL_SRC_DB_2_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'LS_SQL_SRC_DB_2'"
-		},
 		"LS_SQL_SRC_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQL_SRC'"
 		},
-		"LS_SQL_ADLS_SINK_accountKey": {
+		"LS_SQL_SRC_DB_2_password": {
 			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'LS_SQL_ADLS_SINK'"
+			"metadata": "Secure string for 'password' of 'LS_SQL_SRC_DB_2'"
+		},
+		"LS_SNOW_TO_BLOB_SINK_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_SNOW_TO_BLOB_SINK'"
 		},
 		"LS_BLOB_SNOW_SINK_sasUri": {
 			"type": "secureString",
@@ -67,6 +71,10 @@
 			"type": "string",
 			"defaultValue": "Admin"
 		},
+		"LS_SQL_ADLS_SINK_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://vbprojectadlsstorage.dfs.core.windows.net/"
+		},
 		"LS_SQL_ADLS_SINL_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://vbadlssqlsource.dfs.core.windows.net/"
@@ -83,18 +91,6 @@
 			"type": "string",
 			"defaultValue": "vb_admin"
 		},
-		"LS_SQL_SRC_DB_2_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "sql-server-db-dev.database.windows.net"
-		},
-		"LS_SQL_SRC_DB_2_properties_typeProperties_database": {
-			"type": "string",
-			"defaultValue": " sql-server-db-dev"
-		},
-		"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "vb_admin"
-		},
 		"LS_SQL_SRC_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "DESKTOP-HJQ2IDT\\SQLEXPRESS"
@@ -107,9 +103,17 @@
 			"type": "string",
 			"defaultValue": "Admin"
 		},
-		"LS_SQL_ADLS_SINK_properties_typeProperties_url": {
+		"LS_SQL_SRC_DB_2_properties_typeProperties_server": {
 			"type": "string",
-			"defaultValue": "https://vbprojectadlsstorage.dfs.core.windows.net/"
+			"defaultValue": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_SQL_SRC_DB_2_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": " sql-server-db-dev"
+		},
+		"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "vb_admin"
 		},
 		"containerUri": {
 			"type": "string",
@@ -144,6 +148,9 @@
 					"LS_SNOWFLAKE_password": {
 						"value": "[parameters('LS_SNOWFLAKE_password')]"
 					},
+					"LS_SQL_ADLS_SINK_accountKey": {
+						"value": "[parameters('LS_SQL_ADLS_SINK_accountKey')]"
+					},
 					"LS_SQL_ADLS_SINL_accountKey": {
 						"value": "[parameters('LS_SQL_ADLS_SINL_accountKey')]"
 					},
@@ -153,8 +160,8 @@
 					"LS_SQL_SRC_DB_2_password": {
 						"value": "[parameters('LS_SQL_SRC_DB_2_password')]"
 					},
-					"LS_SQL_ADLS_SINK_accountKey": {
-						"value": "[parameters('LS_SQL_ADLS_SINK_accountKey')]"
+					"LS_SNOW_TO_BLOB_SINK_connectionString": {
+						"value": "[parameters('LS_SNOW_TO_BLOB_SINK_connectionString')]"
 					},
 					"LS_SQLSERVER_TBL_password": {
 						"value": "[parameters('LS_SQLSERVER_TBL_password')]"
@@ -173,6 +180,9 @@
 					},
 					"LS_SNOWFLAKE_properties_typeProperties_database": {
 						"value": "[parameters('LS_SNOWFLAKE_properties_typeProperties_database')]"
+					},
+					"LS_SQL_ADLS_SINK_properties_typeProperties_url": {
+						"value": "[parameters('LS_SQL_ADLS_SINK_properties_typeProperties_url')]"
 					},
 					"LS_SQL_ADLS_SINL_properties_typeProperties_url": {
 						"value": "[parameters('LS_SQL_ADLS_SINL_properties_typeProperties_url')]"
@@ -195,9 +205,6 @@
 					"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
 						"value": "[parameters('LS_SQL_SRC_DB_2_properties_typeProperties_userName')]"
 					},
-					"LS_SQL_ADLS_SINK_properties_typeProperties_url": {
-						"value": "[parameters('LS_SQL_ADLS_SINK_properties_typeProperties_url')]"
-					},
 					"LS_SQLSERVER_TBL_properties_typeProperties_server": {
 						"value": "[parameters('LS_SQLSERVER_TBL_properties_typeProperties_server')]"
 					},
@@ -219,6 +226,26 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "VB-PROJ-DF_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'VB-PROJ-DF_ArmTemplate_0')]"
+			]
 		}
 	]
 }
