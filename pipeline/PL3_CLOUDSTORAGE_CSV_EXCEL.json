@@ -17,7 +17,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT DISTINCT L3_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
+						"sqlReaderQuery": {
+							"value": "SELECT DISTINCT L3_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -46,7 +49,7 @@
 					},
 					"cases": [
 						{
-							"value": "AZURE",
+							"value": "Azure",
 							"activities": [
 								{
 									"name": "EXEC_CSV_PL",
@@ -58,10 +61,16 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "PL_CSV",
+											"referenceName": "PL4_CHECK_CSV_EXCEL",
 											"type": "PipelineReference"
 										},
-										"waitOnCompletion": true
+										"waitOnCompletion": true,
+										"parameters": {
+											"Trigger": {
+												"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type",
+												"type": "Expression"
+											}
+										}
 									}
 								}
 							]
@@ -100,7 +109,8 @@
 		],
 		"parameters": {
 			"Trigger": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "@pipeline().parameters.Trigger"
 			}
 		},
 		"variables": {
