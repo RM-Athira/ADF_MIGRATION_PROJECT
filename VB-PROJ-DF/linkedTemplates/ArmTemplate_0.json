@@ -35,6 +35,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'LS_SNOW_TO_BLOB_SINK'"
 		},
+		"LS_SQL_DB_SRC_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_SQL_DB_SRC'"
+		},
+		"LS_AZURE_SRC_DB_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_AZURE_SRC_DB'"
+		},
 		"LS_SQLSERVER_TBL_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQLSERVER_TBL'"
@@ -88,6 +96,30 @@
 			"defaultValue": " sql-server-db-dev"
 		},
 		"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "vb_admin"
+		},
+		"LS_SQL_DB_SRC_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_SQL_DB_SRC_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": " sql-server-db-dev"
+		},
+		"LS_SQL_DB_SRC_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "vb_admin"
+		},
+		"LS_AZURE_SRC_DB_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_AZURE_SRC_DB_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": " sql-server-db-dev"
+		},
+		"LS_AZURE_SRC_DB_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "vb_admin"
 		},
@@ -286,6 +318,78 @@
 				"typeProperties": {
 					"connectionString": "[parameters('LS_SNOW_TO_BLOB_SINK_connectionString')]"
 				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_SQL_DB_SRC')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('LS_SQL_DB_SRC_properties_typeProperties_server')]",
+					"database": "[parameters('LS_SQL_DB_SRC_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": true,
+					"authenticationType": "SQL",
+					"userName": "[parameters('LS_SQL_DB_SRC_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LS_SQL_DB_SRC_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_AZURE_SRC_DB')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_server')]",
+					"database": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LS_AZURE_SRC_DB_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_CSV')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"Trigger": {
+						"type": "String"
+					}
+				},
+				"annotations": []
 			},
 			"dependsOn": []
 		},
@@ -507,195 +611,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_BLOB_SNOW_SINK')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PL_REST_DATA')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "CP_REST_DATA",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "ParquetWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "DS_REST_SRC",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "DS_REST_ADLS_SINK",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DS_REST_SRC')]",
-				"[concat(variables('factoryId'), '/datasets/DS_REST_ADLS_SINK')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_SQL_SOURCE')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_SQL_SRC",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "SqlServerTable",
-				"schema": [
-					{
-						"name": "\"order_id\"",
-						"type": "varchar"
-					},
-					{
-						"name": "\"customer_id\"",
-						"type": "varchar"
-					},
-					{
-						"name": "\"order_status\"",
-						"type": "varchar"
-					},
-					{
-						"name": "\"order_purchase_timestamp\"",
-						"type": "varchar"
-					},
-					{
-						"name": "\"order_approved_at\"",
-						"type": "varchar"
-					},
-					{
-						"name": "\"order_delivered_carrier_date\"",
-						"type": "varchar"
-					},
-					{
-						"name": "\"order_delivered_customer_date\"",
-						"type": "varchar"
-					},
-					{
-						"name": "\"order_estimated_delivery_date\"",
-						"type": "varchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "olist_orders_dataset"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_SRC')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PL_SNOWFLAKE_CPY')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "CPY_SNOWFLAKE",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "SnowflakeV2Source",
-								"exportSettings": {
-									"type": "SnowflakeExportCopyCommand"
-								}
-							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "ParquetWriteSettings"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "DS_SNOWFLAKE_SRC",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "DS_SNOWFLAKE_BLOB",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE_SRC')]",
-				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE_BLOB')]"
 			]
 		}
 	]

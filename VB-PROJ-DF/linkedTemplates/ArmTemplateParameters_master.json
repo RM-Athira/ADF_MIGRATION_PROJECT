@@ -32,6 +32,12 @@
 		"LS_SNOW_TO_BLOB_SINK_connectionString": {
 			"value": ""
 		},
+		"LS_SQL_DB_SRC_password": {
+			"value": ""
+		},
+		"LS_AZURE_SRC_DB_password": {
+			"value": ""
+		},
 		"LS_BLOB_SNOW_SINK_sasUri": {
 			"value": ""
 		},
@@ -84,6 +90,24 @@
 			"value": " sql-server-db-dev"
 		},
 		"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
+			"value": "vb_admin"
+		},
+		"LS_SQL_DB_SRC_properties_typeProperties_server": {
+			"value": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_SQL_DB_SRC_properties_typeProperties_database": {
+			"value": " sql-server-db-dev"
+		},
+		"LS_SQL_DB_SRC_properties_typeProperties_userName": {
+			"value": "vb_admin"
+		},
+		"LS_AZURE_SRC_DB_properties_typeProperties_server": {
+			"value": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_AZURE_SRC_DB_properties_typeProperties_database": {
+			"value": " sql-server-db-dev"
+		},
+		"LS_AZURE_SRC_DB_properties_typeProperties_userName": {
 			"value": "vb_admin"
 		},
 		"containerUri": {
