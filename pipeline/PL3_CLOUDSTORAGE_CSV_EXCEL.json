@@ -46,13 +46,53 @@
 					},
 					"cases": [
 						{
-							"value": "AZURE"
+							"value": "AZURE",
+							"activities": [
+								{
+									"name": "EXEC_CSV_PL",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "PL_CSV",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
 						},
 						{
-							"value": "AWS"
+							"value": "AWS",
+							"activities": [
+								{
+									"name": "Wait1",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
 						},
 						{
-							"value": "GCP"
+							"value": "GCP",
+							"activities": [
+								{
+									"name": "Wait2",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
 						}
 					]
 				}
