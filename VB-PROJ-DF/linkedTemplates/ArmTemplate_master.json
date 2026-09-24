@@ -7,6 +7,14 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "VB-PROJ-DF"
 		},
+		"LS_AZURE_SRC_DB_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_AZURE_SRC_DB'"
+		},
+		"LS_CSV_EXCEL_CHECK_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_CSV_EXCEL_CHECK'"
+		},
 		"LS_REST_ADLS_SINK_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_REST_ADLS_SINK'"
@@ -14,6 +22,10 @@
 		"LS_SNOWFLAKE_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SNOWFLAKE'"
+		},
+		"LS_SNOW_TO_BLOB_SINK_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_SNOW_TO_BLOB_SINK'"
 		},
 		"LS_SQLSERVER_TBL_password": {
 			"type": "secureString",
@@ -31,6 +43,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQL_DB'"
 		},
+		"LS_SQL_DB_SRC_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_SQL_DB_SRC'"
+		},
 		"LS_SQL_SRC_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQL_SRC'"
@@ -39,21 +55,33 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQL_SRC_DB_2'"
 		},
-		"LS_SNOW_TO_BLOB_SINK_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'LS_SNOW_TO_BLOB_SINK'"
+		"LS_AZURE_SRC_DB_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-server-db-dev.database.windows.net"
 		},
-		"LS_SQL_DB_SRC_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'LS_SQL_DB_SRC'"
+		"LS_AZURE_SRC_DB_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": " sql-server-db-dev"
 		},
-		"LS_AZURE_SRC_DB_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'LS_AZURE_SRC_DB'"
+		"LS_AZURE_SRC_DB_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "vb_admin"
 		},
 		"LS_BLOB_SNOW_SINK_sasUri": {
 			"type": "secureString",
 			"metadata": "Secure string for 'sasUri' of 'LS_BLOB_SNOW_SINK'"
+		},
+		"LS_CSV_EXCEL_CHECK_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_CSV_EXCEL_CHECK_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": " sql-server-db-dev"
+		},
+		"LS_CSV_EXCEL_CHECK_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "vb_admin"
 		},
 		"LS_REST_ADLS_SINK_properties_typeProperties_url": {
 			"type": "string",
@@ -99,6 +127,18 @@
 			"type": "string",
 			"defaultValue": "vb_admin"
 		},
+		"LS_SQL_DB_SRC_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_SQL_DB_SRC_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": " sql-server-db-dev"
+		},
+		"LS_SQL_DB_SRC_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "vb_admin"
+		},
 		"LS_SQL_SRC_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "DESKTOP-HJQ2IDT\\SQLEXPRESS"
@@ -120,30 +160,6 @@
 			"defaultValue": " sql-server-db-dev"
 		},
 		"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "vb_admin"
-		},
-		"LS_SQL_DB_SRC_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "sql-server-db-dev.database.windows.net"
-		},
-		"LS_SQL_DB_SRC_properties_typeProperties_database": {
-			"type": "string",
-			"defaultValue": " sql-server-db-dev"
-		},
-		"LS_SQL_DB_SRC_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "vb_admin"
-		},
-		"LS_AZURE_SRC_DB_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "sql-server-db-dev.database.windows.net"
-		},
-		"LS_AZURE_SRC_DB_properties_typeProperties_database": {
-			"type": "string",
-			"defaultValue": " sql-server-db-dev"
-		},
-		"LS_AZURE_SRC_DB_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "vb_admin"
 		},
@@ -174,11 +190,20 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"LS_AZURE_SRC_DB_password": {
+						"value": "[parameters('LS_AZURE_SRC_DB_password')]"
+					},
+					"LS_CSV_EXCEL_CHECK_password": {
+						"value": "[parameters('LS_CSV_EXCEL_CHECK_password')]"
+					},
 					"LS_REST_ADLS_SINK_accountKey": {
 						"value": "[parameters('LS_REST_ADLS_SINK_accountKey')]"
 					},
 					"LS_SNOWFLAKE_password": {
 						"value": "[parameters('LS_SNOWFLAKE_password')]"
+					},
+					"LS_SNOW_TO_BLOB_SINK_connectionString": {
+						"value": "[parameters('LS_SNOW_TO_BLOB_SINK_connectionString')]"
 					},
 					"LS_SQL_ADLS_SINK_accountKey": {
 						"value": "[parameters('LS_SQL_ADLS_SINK_accountKey')]"
@@ -189,26 +214,32 @@
 					"LS_SQL_DB_password": {
 						"value": "[parameters('LS_SQL_DB_password')]"
 					},
-					"LS_SQL_SRC_DB_2_password": {
-						"value": "[parameters('LS_SQL_SRC_DB_2_password')]"
-					},
-					"LS_SNOW_TO_BLOB_SINK_connectionString": {
-						"value": "[parameters('LS_SNOW_TO_BLOB_SINK_connectionString')]"
-					},
 					"LS_SQL_DB_SRC_password": {
 						"value": "[parameters('LS_SQL_DB_SRC_password')]"
 					},
-					"LS_AZURE_SRC_DB_password": {
-						"value": "[parameters('LS_AZURE_SRC_DB_password')]"
+					"LS_SQL_SRC_DB_2_password": {
+						"value": "[parameters('LS_SQL_SRC_DB_2_password')]"
 					},
-					"LS_SQLSERVER_TBL_password": {
-						"value": "[parameters('LS_SQLSERVER_TBL_password')]"
+					"LS_AZURE_SRC_DB_properties_typeProperties_server": {
+						"value": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_server')]"
 					},
-					"LS_SQL_SRC_password": {
-						"value": "[parameters('LS_SQL_SRC_password')]"
+					"LS_AZURE_SRC_DB_properties_typeProperties_database": {
+						"value": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_database')]"
+					},
+					"LS_AZURE_SRC_DB_properties_typeProperties_userName": {
+						"value": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_userName')]"
 					},
 					"LS_BLOB_SNOW_SINK_sasUri": {
 						"value": "[parameters('LS_BLOB_SNOW_SINK_sasUri')]"
+					},
+					"LS_CSV_EXCEL_CHECK_properties_typeProperties_server": {
+						"value": "[parameters('LS_CSV_EXCEL_CHECK_properties_typeProperties_server')]"
+					},
+					"LS_CSV_EXCEL_CHECK_properties_typeProperties_database": {
+						"value": "[parameters('LS_CSV_EXCEL_CHECK_properties_typeProperties_database')]"
+					},
+					"LS_CSV_EXCEL_CHECK_properties_typeProperties_userName": {
+						"value": "[parameters('LS_CSV_EXCEL_CHECK_properties_typeProperties_userName')]"
 					},
 					"LS_REST_ADLS_SINK_properties_typeProperties_url": {
 						"value": "[parameters('LS_REST_ADLS_SINK_properties_typeProperties_url')]"
@@ -234,15 +265,6 @@
 					"LS_SQL_DB_properties_typeProperties_userName": {
 						"value": "[parameters('LS_SQL_DB_properties_typeProperties_userName')]"
 					},
-					"LS_SQL_SRC_DB_2_properties_typeProperties_server": {
-						"value": "[parameters('LS_SQL_SRC_DB_2_properties_typeProperties_server')]"
-					},
-					"LS_SQL_SRC_DB_2_properties_typeProperties_database": {
-						"value": "[parameters('LS_SQL_SRC_DB_2_properties_typeProperties_database')]"
-					},
-					"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
-						"value": "[parameters('LS_SQL_SRC_DB_2_properties_typeProperties_userName')]"
-					},
 					"LS_SQL_DB_SRC_properties_typeProperties_server": {
 						"value": "[parameters('LS_SQL_DB_SRC_properties_typeProperties_server')]"
 					},
@@ -252,32 +274,14 @@
 					"LS_SQL_DB_SRC_properties_typeProperties_userName": {
 						"value": "[parameters('LS_SQL_DB_SRC_properties_typeProperties_userName')]"
 					},
-					"LS_AZURE_SRC_DB_properties_typeProperties_server": {
-						"value": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_server')]"
+					"LS_SQL_SRC_DB_2_properties_typeProperties_server": {
+						"value": "[parameters('LS_SQL_SRC_DB_2_properties_typeProperties_server')]"
 					},
-					"LS_AZURE_SRC_DB_properties_typeProperties_database": {
-						"value": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_database')]"
+					"LS_SQL_SRC_DB_2_properties_typeProperties_database": {
+						"value": "[parameters('LS_SQL_SRC_DB_2_properties_typeProperties_database')]"
 					},
-					"LS_AZURE_SRC_DB_properties_typeProperties_userName": {
-						"value": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_userName')]"
-					},
-					"LS_SQLSERVER_TBL_properties_typeProperties_server": {
-						"value": "[parameters('LS_SQLSERVER_TBL_properties_typeProperties_server')]"
-					},
-					"LS_SQLSERVER_TBL_properties_typeProperties_database": {
-						"value": "[parameters('LS_SQLSERVER_TBL_properties_typeProperties_database')]"
-					},
-					"LS_SQLSERVER_TBL_properties_typeProperties_userName": {
-						"value": "[parameters('LS_SQLSERVER_TBL_properties_typeProperties_userName')]"
-					},
-					"LS_SQL_SRC_properties_typeProperties_server": {
-						"value": "[parameters('LS_SQL_SRC_properties_typeProperties_server')]"
-					},
-					"LS_SQL_SRC_properties_typeProperties_database": {
-						"value": "[parameters('LS_SQL_SRC_properties_typeProperties_database')]"
-					},
-					"LS_SQL_SRC_properties_typeProperties_userName": {
-						"value": "[parameters('LS_SQL_SRC_properties_typeProperties_userName')]"
+					"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
+						"value": "[parameters('LS_SQL_SRC_DB_2_properties_typeProperties_userName')]"
 					}
 				}
 			},
@@ -296,6 +300,30 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"LS_SQLSERVER_TBL_password": {
+						"value": "[parameters('LS_SQLSERVER_TBL_password')]"
+					},
+					"LS_SQL_SRC_password": {
+						"value": "[parameters('LS_SQL_SRC_password')]"
+					},
+					"LS_SQLSERVER_TBL_properties_typeProperties_server": {
+						"value": "[parameters('LS_SQLSERVER_TBL_properties_typeProperties_server')]"
+					},
+					"LS_SQLSERVER_TBL_properties_typeProperties_database": {
+						"value": "[parameters('LS_SQLSERVER_TBL_properties_typeProperties_database')]"
+					},
+					"LS_SQLSERVER_TBL_properties_typeProperties_userName": {
+						"value": "[parameters('LS_SQLSERVER_TBL_properties_typeProperties_userName')]"
+					},
+					"LS_SQL_SRC_properties_typeProperties_server": {
+						"value": "[parameters('LS_SQL_SRC_properties_typeProperties_server')]"
+					},
+					"LS_SQL_SRC_properties_typeProperties_database": {
+						"value": "[parameters('LS_SQL_SRC_properties_typeProperties_database')]"
+					},
+					"LS_SQL_SRC_properties_typeProperties_userName": {
+						"value": "[parameters('LS_SQL_SRC_properties_typeProperties_userName')]"
 					}
 				}
 			},
