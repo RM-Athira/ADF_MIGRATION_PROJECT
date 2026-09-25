@@ -41,6 +41,12 @@
 		"LS_SQL_SRC_DB_2_password": {
 			"value": ""
 		},
+		"LS_CSV_INPUT_SRC_connectionString": {
+			"value": ""
+		},
+		"LS_CSV_FROM_BLOB_SINK_accountKey": {
+			"value": ""
+		},
 		"LS_AZURE_SRC_DB_properties_typeProperties_server": {
 			"value": "sql-server-db-dev.database.windows.net"
 		},
@@ -121,6 +127,9 @@
 		},
 		"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
 			"value": "vb_admin"
+		},
+		"LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url": {
+			"value": "https://vbprojectadlsstorage.dfs.core.windows.net/"
 		},
 		"containerUri": {
 			"value": ""

@@ -45,6 +45,32 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_SNOWFLAKE_BLOB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_BLOB_SNOW_SINK",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@concat(\n    'snow/',\n    formatDateTime(utcnow(), 'yyyy'), '/',\n    formatDateTime(utcnow(), 'MM'), '/',\n    formatDateTime(utcnow(), 'dd')\n)",
+							"type": "Expression"
+						},
+						"container": "blobinput"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_SNOWFLAKE_SRC')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -187,14 +213,82 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/PL3_CLOUDSTORAGE_CSV_EXCEL')]",
+			"name": "[concat(parameters('factoryName'), '/DS_CSV_INPUT_SRC')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_CSV_INPUT_SRC",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "csvinput"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "order_id",
+						"type": "String"
+					},
+					{
+						"name": "payment_sequential",
+						"type": "String"
+					},
+					{
+						"name": "payment_type",
+						"type": "String"
+					},
+					{
+						"name": "payment_installments",
+						"type": "String"
+					},
+					{
+						"name": "payment_value",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_CSV_FROM_BLOB_SINK')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_CSV_FROM_BLOB_SINK",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "csv"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_CSV')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "LKUP_SRC_FILES",
-						"type": "Lookup",
+						"name": "CPY_CSV",
+						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -206,91 +300,50 @@
 						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "SELECT DISTINCT L3_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
-									"type": "Expression"
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*",
+									"enablePartitionDiscovery": false
 								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
 							},
-							"dataset": {
-								"referenceName": "DS_AZURE_SRC_DB",
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_CSV_INPUT_SRC",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
-						}
-					},
-					{
-						"name": "SWITCH_SRC_CSV_EXCEL",
-						"type": "Switch",
-						"dependsOn": [
-							{
-								"activity": "LKUP_SRC_FILES",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
 						],
-						"userProperties": [],
-						"typeProperties": {
-							"on": {
-								"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type",
-								"type": "Expression"
-							},
-							"cases": [
-								{
-									"value": "AZURE",
-									"activities": [
-										{
-											"name": "EXEC_CSV_PL",
-											"type": "ExecutePipeline",
-											"dependsOn": [],
-											"policy": {
-												"secureInput": false
-											},
-											"userProperties": [],
-											"typeProperties": {
-												"pipeline": {
-													"referenceName": "PL_CSV",
-													"type": "PipelineReference"
-												},
-												"waitOnCompletion": true,
-												"parameters": {}
-											}
-										}
-									]
-								},
-								{
-									"value": "AWS",
-									"activities": [
-										{
-											"name": "Wait1",
-											"type": "Wait",
-											"dependsOn": [],
-											"userProperties": [],
-											"typeProperties": {
-												"waitTimeInSeconds": 1
-											}
-										}
-									]
-								},
-								{
-									"value": "GCP",
-									"activities": [
-										{
-											"name": "Wait2",
-											"type": "Wait",
-											"dependsOn": [],
-											"userProperties": [],
-											"typeProperties": {
-												"waitTimeInSeconds": 1
-											}
-										}
-									]
-								}
-							]
-						}
+						"outputs": [
+							{
+								"referenceName": "DS_CSV_FROM_BLOB_SINK",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -308,7 +361,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_CSV_INPUT_SRC')]",
+				"[concat(variables('factoryId'), '/datasets/DS_CSV_FROM_BLOB_SINK')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/PL_REST_DATA')]",
@@ -438,7 +494,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE_SRC')]"
+				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE_SRC')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SNOWFLAKE_BLOB')]"
 			]
 		},
 		{
@@ -496,14 +553,13 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/PL2_RAW_DATA')]",
+			"name": "[concat(parameters('factoryName'), '/PL4_CHECK_CSV_EXCEL')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "LKUP_L2_TYPE",
-						"description": "Take data from database",
+						"name": "LKUP_CHECK_FILETYPE",
 						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
@@ -518,25 +574,25 @@
 							"source": {
 								"type": "AzureSqlSource",
 								"sqlReaderQuery": {
-									"value": "SELECT DISTINCT L2_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
+									"value": "SELECT DISTINCT L4_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
 									"type": "Expression"
 								},
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "DS_AZURE_SQL_DB_SRC",
+								"referenceName": "DS_CSV_EXCEL_CHECK",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						}
 					},
 					{
-						"name": "SWITCH_SRC",
+						"name": "SWITCH_CSV_EXCEL_CHECK",
 						"type": "Switch",
 						"dependsOn": [
 							{
-								"activity": "LKUP_L2_TYPE",
+								"activity": "LKUP_CHECK_FILETYPE",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -545,15 +601,15 @@
 						"userProperties": [],
 						"typeProperties": {
 							"on": {
-								"value": "@activity('LKUP_L2_TYPE').output.firstRow.L2_switch_type",
+								"value": "@activity('LKUP_CHECK_FILETYPE').output.firstRow.L4_switch_type",
 								"type": "Expression"
 							},
 							"cases": [
 								{
-									"value": "CloudStorage",
+									"value": "csv",
 									"activities": [
 										{
-											"name": "EXECUTE_CLOUD_PL3",
+											"name": "EXEC_PL4_1_CSV",
 											"type": "ExecutePipeline",
 											"dependsOn": [],
 											"policy": {
@@ -562,34 +618,25 @@
 											"userProperties": [],
 											"typeProperties": {
 												"pipeline": {
-													"referenceName": "PL3_CLOUDSTORAGE_CSV_EXCEL",
+													"referenceName": "PL_CSV",
 													"type": "PipelineReference"
 												},
 												"waitOnCompletion": true,
-												"parameters": {}
+												"parameters": {
+													"Trigger": {
+														"value": "@pipeline().parameters.Trigger",
+														"type": "Expression"
+													}
+												}
 											}
 										}
 									]
 								},
 								{
-									"value": "RestAPI",
+									"value": "excel",
 									"activities": [
 										{
 											"name": "Wait1",
-											"type": "Wait",
-											"dependsOn": [],
-											"userProperties": [],
-											"typeProperties": {
-												"waitTimeInSeconds": 1
-											}
-										}
-									]
-								},
-								{
-									"value": "Snowflake",
-									"activities": [
-										{
-											"name": "Wait2",
 											"type": "Wait",
 											"dependsOn": [],
 											"userProperties": [],
@@ -608,18 +655,14 @@
 				},
 				"parameters": {
 					"Trigger": {
-						"type": "string"
-					}
-				},
-				"variables": {
-					"Mapping": {
-						"type": "String"
+						"type": "string",
+						"defaultValue": "Tr_sample_csv"
 					}
 				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/PL3_CLOUDSTORAGE_CSV_EXCEL')]"
+				"[concat(variables('factoryId'), '/pipelines/PL_CSV')]"
 			]
 		},
 		{
@@ -702,13 +745,13 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/PL4_CHECK_CSV_EXCEL')]",
+			"name": "[concat(parameters('factoryName'), '/PL3_CLOUDSTORAGE_CSV_EXCEL')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "LKUP_CHECK_FILETYPE",
+						"name": "LKUP_SRC_FILES",
 						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
@@ -723,25 +766,25 @@
 							"source": {
 								"type": "AzureSqlSource",
 								"sqlReaderQuery": {
-									"value": "SELECT DISTINCT L4_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
+									"value": "SELECT DISTINCT L3_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
 									"type": "Expression"
 								},
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "DS_CSV_EXCEL_CHECK",
+								"referenceName": "DS_AZURE_SRC_DB",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						}
 					},
 					{
-						"name": "SWITCH_CSV_EXCEL_CHECK",
+						"name": "SWITCH_SRC_CSV_EXCEL",
 						"type": "Switch",
 						"dependsOn": [
 							{
-								"activity": "LKUP_CHECK_FILETYPE",
+								"activity": "LKUP_SRC_FILES",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -750,15 +793,15 @@
 						"userProperties": [],
 						"typeProperties": {
 							"on": {
-								"value": "@activity('LKUP_CHECK_FILETYPE').output.firstRow.L4_switch_type",
+								"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type",
 								"type": "Expression"
 							},
 							"cases": [
 								{
-									"value": "CSV",
+									"value": "Azure",
 									"activities": [
 										{
-											"name": "Execute Pipeline1",
+											"name": "EXEC_CSV_PL",
 											"type": "ExecutePipeline",
 											"dependsOn": [],
 											"policy": {
@@ -767,20 +810,173 @@
 											"userProperties": [],
 											"typeProperties": {
 												"pipeline": {
-													"referenceName": "PL_CPY_SQL",
+													"referenceName": "PL4_CHECK_CSV_EXCEL",
 													"type": "PipelineReference"
 												},
 												"waitOnCompletion": true,
-												"parameters": {}
+												"parameters": {
+													"Trigger": {
+														"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type",
+														"type": "Expression"
+													}
+												}
 											}
 										}
 									]
 								},
 								{
-									"value": "EXCEL",
+									"value": "AWS",
 									"activities": [
 										{
 											"name": "Wait1",
+											"type": "Wait",
+											"dependsOn": [],
+											"userProperties": [],
+											"typeProperties": {
+												"waitTimeInSeconds": 1
+											}
+										}
+									]
+								},
+								{
+									"value": "GCP",
+									"activities": [
+										{
+											"name": "Wait2",
+											"type": "Wait",
+											"dependsOn": [],
+											"userProperties": [],
+											"typeProperties": {
+												"waitTimeInSeconds": 1
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"Trigger_Name": {
+						"type": "string",
+						"defaultValue": "@pipeline().parameters.Trigger"
+					},
+					"Trigger": {
+						"type": "string",
+						"defaultValue": "Azure"
+					}
+				},
+				"variables": {
+					"Mapping": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/PL4_CHECK_CSV_EXCEL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL2_RAW_DATA')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LKUP_L2_TYPE",
+						"description": "Take data from database",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "SELECT DISTINCT L2_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "DS_AZURE_SQL_DB_SRC",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "SWITCH_SRC",
+						"type": "Switch",
+						"dependsOn": [
+							{
+								"activity": "LKUP_L2_TYPE",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"on": {
+								"value": "@activity('LKUP_L2_TYPE').output.firstRow.L2_switch_type",
+								"type": "Expression"
+							},
+							"cases": [
+								{
+									"value": "CloudStorage",
+									"activities": [
+										{
+											"name": "EXECUTE_CLOUD_PL3",
+											"type": "ExecutePipeline",
+											"dependsOn": [],
+											"policy": {
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"pipeline": {
+													"referenceName": "PL3_CLOUDSTORAGE_CSV_EXCEL",
+													"type": "PipelineReference"
+												},
+												"waitOnCompletion": true,
+												"parameters": {
+													"Trigger": "@pipeline().parameters.Trigger"
+												}
+											}
+										}
+									]
+								},
+								{
+									"value": "RestAPI",
+									"activities": [
+										{
+											"name": "Wait1",
+											"type": "Wait",
+											"dependsOn": [],
+											"userProperties": [],
+											"typeProperties": {
+												"waitTimeInSeconds": 1
+											}
+										}
+									]
+								},
+								{
+									"value": "Snowflake",
+									"activities": [
+										{
+											"name": "Wait2",
 											"type": "Wait",
 											"dependsOn": [],
 											"userProperties": [],
@@ -802,10 +998,15 @@
 						"type": "string"
 					}
 				},
+				"variables": {
+					"Mapping": {
+						"type": "String"
+					}
+				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/PL_CPY_SQL')]"
+				"[concat(variables('factoryId'), '/pipelines/PL3_CLOUDSTORAGE_CSV_EXCEL')]"
 			]
 		},
 		{

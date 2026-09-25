@@ -55,6 +55,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQL_SRC_DB_2'"
 		},
+		"LS_CSV_INPUT_SRC_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_CSV_INPUT_SRC'"
+		},
+		"LS_CSV_FROM_BLOB_SINK_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_CSV_FROM_BLOB_SINK'"
+		},
 		"LS_AZURE_SRC_DB_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "sql-server-db-dev.database.windows.net"
@@ -162,6 +170,10 @@
 		"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "vb_admin"
+		},
+		"LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://vbprojectadlsstorage.dfs.core.windows.net/"
 		}
 	},
 	"variables": {
@@ -239,7 +251,9 @@
 													"type": "PipelineReference"
 												},
 												"waitOnCompletion": true,
-												"parameters": {}
+												"parameters": {
+													"Trigger": "@pipeline().parameters.Trigger"
+												}
 											}
 										}
 									]
@@ -350,7 +364,7 @@
 							},
 							"cases": [
 								{
-									"value": "AZURE",
+									"value": "Azure",
 									"activities": [
 										{
 											"name": "EXEC_CSV_PL",
@@ -362,11 +376,16 @@
 											"userProperties": [],
 											"typeProperties": {
 												"pipeline": {
-													"referenceName": "PL_CSV",
+													"referenceName": "PL4_CHECK_CSV_EXCEL",
 													"type": "PipelineReference"
 												},
 												"waitOnCompletion": true,
-												"parameters": {}
+												"parameters": {
+													"Trigger": {
+														"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type",
+														"type": "Expression"
+													}
+												}
 											}
 										}
 									]
@@ -407,8 +426,13 @@
 					"elapsedTimeMetric": {}
 				},
 				"parameters": {
+					"Trigger_Name": {
+						"type": "string",
+						"defaultValue": "@pipeline().parameters.Trigger"
+					},
 					"Trigger": {
-						"type": "string"
+						"type": "string",
+						"defaultValue": "Azure"
 					}
 				},
 				"variables": {
@@ -420,7 +444,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DS_AZURE_SRC_DB')]",
-				"[concat(variables('factoryId'), '/pipelines/PL_CSV')]"
+				"[concat(variables('factoryId'), '/pipelines/PL4_CHECK_CSV_EXCEL')]"
 			]
 		},
 		{
@@ -477,10 +501,10 @@
 							},
 							"cases": [
 								{
-									"value": "CSV",
+									"value": "csv",
 									"activities": [
 										{
-											"name": "Execute Pipeline1",
+											"name": "EXEC_PL4_1_CSV",
 											"type": "ExecutePipeline",
 											"dependsOn": [],
 											"policy": {
@@ -489,17 +513,22 @@
 											"userProperties": [],
 											"typeProperties": {
 												"pipeline": {
-													"referenceName": "PL_CPY_SQL",
+													"referenceName": "PL_CSV",
 													"type": "PipelineReference"
 												},
 												"waitOnCompletion": true,
-												"parameters": {}
+												"parameters": {
+													"Trigger": {
+														"value": "@pipeline().parameters.Trigger",
+														"type": "Expression"
+													}
+												}
 											}
 										}
 									]
 								},
 								{
-									"value": "EXCEL",
+									"value": "excel",
 									"activities": [
 										{
 											"name": "Wait1",
@@ -521,14 +550,15 @@
 				},
 				"parameters": {
 					"Trigger": {
-						"type": "string"
+						"type": "string",
+						"defaultValue": "Tr_sample_csv"
 					}
 				},
 				"annotations": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DS_CSV_EXCEL_CHECK')]",
-				"[concat(variables('factoryId'), '/pipelines/PL_CPY_SQL')]"
+				"[concat(variables('factoryId'), '/pipelines/PL_CSV')]"
 			]
 		},
 		{
@@ -617,26 +647,84 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Wait1",
-						"type": "Wait",
+						"name": "CPY_CSV",
+						"type": "Copy",
 						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 1
-						}
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_CSV_INPUT_SRC",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_CSV_FROM_BLOB_SINK",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"variables": {
+				"parameters": {
 					"Trigger": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"Mapping": {
 						"type": "String"
 					}
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_CSV_INPUT_SRC')]",
+				"[concat(variables('factoryId'), '/datasets/DS_CSV_FROM_BLOB_SINK')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/PL_MASTER_1')]",
@@ -1407,6 +1495,108 @@
 				"typeProperties": {}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_CSV_INPUT_SRC')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('LS_CSV_INPUT_SRC_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_CSV_INPUT_SRC')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_CSV_INPUT_SRC",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "csvinput"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "order_id",
+						"type": "String"
+					},
+					{
+						"name": "payment_sequential",
+						"type": "String"
+					},
+					{
+						"name": "payment_type",
+						"type": "String"
+					},
+					{
+						"name": "payment_installments",
+						"type": "String"
+					},
+					{
+						"name": "payment_value",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_CSV_INPUT_SRC')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_CSV_FROM_BLOB_SINK')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('LS_CSV_FROM_BLOB_SINK_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_CSV_FROM_BLOB_SINK')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_CSV_FROM_BLOB_SINK",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "csv"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_CSV_FROM_BLOB_SINK')]"
+			]
 		}
 	]
 }
