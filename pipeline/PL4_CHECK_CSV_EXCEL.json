@@ -49,10 +49,10 @@
 					},
 					"cases": [
 						{
-							"value": "CSV",
+							"value": "csv",
 							"activities": [
 								{
-									"name": "Execute Pipeline1",
+									"name": "EXEC_PL4_1_CSV",
 									"type": "ExecutePipeline",
 									"dependsOn": [],
 									"policy": {
@@ -64,13 +64,19 @@
 											"referenceName": "PL_CPY_SQL",
 											"type": "PipelineReference"
 										},
-										"waitOnCompletion": true
+										"waitOnCompletion": true,
+										"parameters": {
+											"Trigger": {
+												"value": "@pipeline().parameters.Trigger",
+												"type": "Expression"
+											}
+										}
 									}
 								}
 							]
 						},
 						{
-							"value": "EXCEL",
+							"value": "excel",
 							"activities": [
 								{
 									"name": "Wait1",
@@ -89,7 +95,8 @@
 		],
 		"parameters": {
 			"Trigger": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "Tr_sample_csv"
 			}
 		},
 		"annotations": []
