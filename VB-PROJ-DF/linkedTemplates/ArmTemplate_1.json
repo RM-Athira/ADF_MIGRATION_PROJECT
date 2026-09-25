@@ -606,7 +606,7 @@
 							},
 							"cases": [
 								{
-									"value": "csv",
+									"value": "CSV",
 									"activities": [
 										{
 											"name": "EXEC_PL4_1_CSV",
