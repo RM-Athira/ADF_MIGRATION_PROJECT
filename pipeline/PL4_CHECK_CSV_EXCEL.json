@@ -5,7 +5,14 @@
 			{
 				"name": "LKUP_CHECK_FILETYPE",
 				"type": "Lookup",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "SET_VARIABLE_4_1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -35,7 +42,7 @@
 				"type": "Switch",
 				"dependsOn": [
 					{
-						"activity": "LKUP_CHECK_FILETYPE",
+						"activity": "SET_VARIABLE_4",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -91,11 +98,60 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "SET_VARIABLE_4",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "LKUP_CHECK_FILETYPE",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Mapping",
+					"value": {
+						"value": "@activity('LKUP_CHECK_FILETYPE').output.firstRow.L4_switch_type",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SET_VARIABLE_4_1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Trigger_val_check",
+					"value": {
+						"value": "SELECT DISTINCT L4_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
 			"Trigger": {
 				"type": "string"
+			}
+		},
+		"variables": {
+			"Mapping": {
+				"type": "String"
+			},
+			"Trigger_val_check": {
+				"type": "String"
 			}
 		},
 		"annotations": []
