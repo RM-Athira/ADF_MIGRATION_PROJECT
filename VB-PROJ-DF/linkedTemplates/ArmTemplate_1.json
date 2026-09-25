@@ -45,6 +45,44 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_REST_ADLS_SINK')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_REST_ADLS_SINK",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "rest"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_REST_SRC')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_REST_SRC",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_SNOWFLAKE_BLOB')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -213,74 +251,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DS_CSV_INPUT_SRC')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_CSV_INPUT_SRC",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"container": "csvinput"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "order_id",
-						"type": "String"
-					},
-					{
-						"name": "payment_sequential",
-						"type": "String"
-					},
-					{
-						"name": "payment_type",
-						"type": "String"
-					},
-					{
-						"name": "payment_installments",
-						"type": "String"
-					},
-					{
-						"name": "payment_value",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_CSV_FROM_BLOB_SINK')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_CSV_FROM_BLOB_SINK",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileSystem": "csv"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": []
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/PL_CSV')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -361,10 +331,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DS_CSV_INPUT_SRC')]",
-				"[concat(variables('factoryId'), '/datasets/DS_CSV_FROM_BLOB_SINK')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/PL_REST_DATA')]",
@@ -426,7 +393,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_REST_SRC')]",
+				"[concat(variables('factoryId'), '/datasets/DS_REST_ADLS_SINK')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/PL_SNOWFLAKE_CPY')]",
@@ -561,7 +531,14 @@
 					{
 						"name": "LKUP_CHECK_FILETYPE",
 						"type": "Lookup",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "SET_VARIABLE_4_1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -592,7 +569,7 @@
 						"type": "Switch",
 						"dependsOn": [
 							{
-								"activity": "LKUP_CHECK_FILETYPE",
+								"activity": "SET_VARIABLE_4",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -606,7 +583,7 @@
 							},
 							"cases": [
 								{
-									"value": "CSV",
+									"value": "csv",
 									"activities": [
 										{
 											"name": "EXEC_PL4_1_CSV",
@@ -648,6 +625,47 @@
 								}
 							]
 						}
+					},
+					{
+						"name": "SET_VARIABLE_4",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "LKUP_CHECK_FILETYPE",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "Mapping",
+							"value": {
+								"value": "@activity('LKUP_CHECK_FILETYPE').output.firstRow.L4_switch_type",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "SET_VARIABLE_4_1",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "Trigger_val_check",
+							"value": {
+								"value": "SELECT DISTINCT L4_switch_type \nFROM dbo.vb_tbl_job a\nJOIN dbo.vb_tbl_trigger b ON a.trigger_id = b.trigger_id\nWHERE b.trigger_name = '@{pipeline().parameters.Trigger}'",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -656,6 +674,14 @@
 				"parameters": {
 					"Trigger": {
 						"type": "string"
+					}
+				},
+				"variables": {
+					"Mapping": {
+						"type": "String"
+					},
+					"Trigger_val_check": {
+						"type": "String"
 					}
 				},
 				"annotations": []
@@ -783,7 +809,7 @@
 						"type": "Switch",
 						"dependsOn": [
 							{
-								"activity": "LKUP_SRC_FILES",
+								"activity": "SET_ACTIVITY_NAME_2",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -802,7 +828,14 @@
 										{
 											"name": "EXEC_CSV_PL",
 											"type": "ExecutePipeline",
-											"dependsOn": [],
+											"dependsOn": [
+												{
+													"activity": "SET_VARIABLE_3",
+													"dependencyConditions": [
+														"Succeeded"
+													]
+												}
+											],
 											"policy": {
 												"secureInput": false
 											},
@@ -818,6 +851,23 @@
 														"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type",
 														"type": "Expression"
 													}
+												}
+											}
+										},
+										{
+											"name": "SET_VARIABLE_3",
+											"type": "SetVariable",
+											"dependsOn": [],
+											"policy": {
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"variableName": "Mapping",
+												"value": {
+													"value": "@pipeline().parameters.Trigger",
+													"type": "Expression"
 												}
 											}
 										}
@@ -852,6 +902,30 @@
 									]
 								}
 							]
+						}
+					},
+					{
+						"name": "SET_ACTIVITY_NAME_2",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "LKUP_SRC_FILES",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "Mapping",
+							"value": {
+								"value": "pipeline().parameters.Trigger",
+								"type": "Expression"
+							}
 						}
 					}
 				],
@@ -924,7 +998,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"on": {
-								"value": "@if(\n  greater(length(activity('LKUP_L2_TYPE').output.value),0),\n  activity('LKUP_L2_TYPE').output.value[0].L2_switch_type,\n  'Default'\n)\n",
+								"value": "@activity('LKUP_L2_TYPE').output.firstRow.L2_switch_type",
 								"type": "Expression"
 							},
 							"cases": [
@@ -946,7 +1020,10 @@
 												},
 												"waitOnCompletion": true,
 												"parameters": {
-													"Trigger": "@pipeline().parameters.Trigger"
+													"Trigger": {
+														"value": "@pipeline().parameters.Trigger",
+														"type": "Expression"
+													}
 												}
 											}
 										}
@@ -1002,7 +1079,7 @@
 						"typeProperties": {
 							"variableName": "Mapping",
 							"value": {
-								"value": "@if(\n  greater(length(activity('LKUP_L2_TYPE').output.value),0),\n  activity('LKUP_L2_TYPE').output.value[0].L2_switch_type,\n  'NoRows'\n)",
+								"value": "@activity('LKUP_L2_TYPE').output.firstRow.L2_switch_type",
 								"type": "Expression"
 							}
 						}
@@ -1043,7 +1120,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"variableName": "Trigger_variable",
+							"variableName": " Mapping",
 							"value": {
 								"value": "@if(equals(pipeline().parameters.Trigger, null),pipeline().TriggerName,pipeline().parameters.Trigger)",
 								"type": "Expression"
@@ -1073,7 +1150,7 @@
 							"waitOnCompletion": true,
 							"parameters": {
 								"Trigger": {
-									"value": "@variables('Trigger_variable')",
+									"value": "@pipeline().parameters.Trigger",
 									"type": "Expression"
 								}
 							}
@@ -1089,7 +1166,7 @@
 					}
 				},
 				"variables": {
-					"Trigger_variable": {
+					" Mapping": {
 						"type": "String"
 					}
 				},

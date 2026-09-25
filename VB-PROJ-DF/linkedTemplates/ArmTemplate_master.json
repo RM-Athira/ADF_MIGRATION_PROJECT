@@ -15,6 +15,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_CSV_EXCEL_CHECK'"
 		},
+		"LS_CSV_FROM_BLOB_SINK_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_CSV_FROM_BLOB_SINK'"
+		},
+		"LS_CSV_INPUT_SRC_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_CSV_INPUT_SRC'"
+		},
 		"LS_REST_ADLS_SINK_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_REST_ADLS_SINK'"
@@ -55,14 +63,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQL_SRC_DB_2'"
 		},
-		"LS_CSV_INPUT_SRC_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'LS_CSV_INPUT_SRC'"
-		},
-		"LS_CSV_FROM_BLOB_SINK_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'LS_CSV_FROM_BLOB_SINK'"
-		},
 		"LS_AZURE_SRC_DB_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "sql-server-db-dev.database.windows.net"
@@ -90,6 +90,10 @@
 		"LS_CSV_EXCEL_CHECK_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "vb_admin"
+		},
+		"LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://vbprojectadlsstorage.dfs.core.windows.net/"
 		},
 		"LS_REST_ADLS_SINK_properties_typeProperties_url": {
 			"type": "string",
@@ -171,10 +175,6 @@
 			"type": "string",
 			"defaultValue": "vb_admin"
 		},
-		"LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://vbprojectadlsstorage.dfs.core.windows.net/"
-		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -208,6 +208,12 @@
 					"LS_CSV_EXCEL_CHECK_password": {
 						"value": "[parameters('LS_CSV_EXCEL_CHECK_password')]"
 					},
+					"LS_CSV_FROM_BLOB_SINK_accountKey": {
+						"value": "[parameters('LS_CSV_FROM_BLOB_SINK_accountKey')]"
+					},
+					"LS_CSV_INPUT_SRC_connectionString": {
+						"value": "[parameters('LS_CSV_INPUT_SRC_connectionString')]"
+					},
 					"LS_REST_ADLS_SINK_accountKey": {
 						"value": "[parameters('LS_REST_ADLS_SINK_accountKey')]"
 					},
@@ -232,12 +238,6 @@
 					"LS_SQL_SRC_DB_2_password": {
 						"value": "[parameters('LS_SQL_SRC_DB_2_password')]"
 					},
-					"LS_CSV_INPUT_SRC_connectionString": {
-						"value": "[parameters('LS_CSV_INPUT_SRC_connectionString')]"
-					},
-					"LS_CSV_FROM_BLOB_SINK_accountKey": {
-						"value": "[parameters('LS_CSV_FROM_BLOB_SINK_accountKey')]"
-					},
 					"LS_AZURE_SRC_DB_properties_typeProperties_server": {
 						"value": "[parameters('LS_AZURE_SRC_DB_properties_typeProperties_server')]"
 					},
@@ -258,6 +258,9 @@
 					},
 					"LS_CSV_EXCEL_CHECK_properties_typeProperties_userName": {
 						"value": "[parameters('LS_CSV_EXCEL_CHECK_properties_typeProperties_userName')]"
+					},
+					"LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url": {
+						"value": "[parameters('LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url')]"
 					},
 					"LS_REST_ADLS_SINK_properties_typeProperties_url": {
 						"value": "[parameters('LS_REST_ADLS_SINK_properties_typeProperties_url')]"
@@ -300,9 +303,6 @@
 					},
 					"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
 						"value": "[parameters('LS_SQL_SRC_DB_2_properties_typeProperties_userName')]"
-					},
-					"LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url": {
-						"value": "[parameters('LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url')]"
 					}
 				}
 			},

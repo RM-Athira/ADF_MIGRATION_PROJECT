@@ -15,6 +15,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_CSV_EXCEL_CHECK'"
 		},
+		"LS_CSV_FROM_BLOB_SINK_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_CSV_FROM_BLOB_SINK'"
+		},
+		"LS_CSV_INPUT_SRC_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_CSV_INPUT_SRC'"
+		},
 		"LS_REST_ADLS_SINK_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_REST_ADLS_SINK'"
@@ -47,14 +55,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_SQL_SRC_DB_2'"
 		},
-		"LS_CSV_INPUT_SRC_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'LS_CSV_INPUT_SRC'"
-		},
-		"LS_CSV_FROM_BLOB_SINK_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'LS_CSV_FROM_BLOB_SINK'"
-		},
 		"LS_AZURE_SRC_DB_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "sql-server-db-dev.database.windows.net"
@@ -82,6 +82,10 @@
 		"LS_CSV_EXCEL_CHECK_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "vb_admin"
+		},
+		"LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://vbprojectadlsstorage.dfs.core.windows.net/"
 		},
 		"LS_REST_ADLS_SINK_properties_typeProperties_url": {
 			"type": "string",
@@ -138,10 +142,6 @@
 		"LS_SQL_SRC_DB_2_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "vb_admin"
-		},
-		"LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://vbprojectadlsstorage.dfs.core.windows.net/"
 		}
 	},
 	"variables": {
@@ -201,6 +201,36 @@
 						"type": "SecureString",
 						"value": "[parameters('LS_CSV_EXCEL_CHECK_password')]"
 					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_CSV_FROM_BLOB_SINK')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('LS_CSV_FROM_BLOB_SINK_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_CSV_INPUT_SRC')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('LS_CSV_INPUT_SRC_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -384,36 +414,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/LS_CSV_INPUT_SRC')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('LS_CSV_INPUT_SRC_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/LS_CSV_FROM_BLOB_SINK')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('LS_CSV_FROM_BLOB_SINK_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('LS_CSV_FROM_BLOB_SINK_accountKey')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/DS_AZURE_SQL_DB_SRC')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -468,12 +468,12 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DS_REST_ADLS_SINK')]",
+			"name": "[concat(parameters('factoryName'), '/DS_CSV_FROM_BLOB_SINK')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "LS_REST_ADLS_SINK",
+					"referenceName": "LS_CSV_FROM_BLOB_SINK",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
@@ -481,32 +481,62 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileSystem": "rest"
+						"fileSystem": "csv"
 					},
 					"compressionCodec": "snappy"
 				},
 				"schema": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_REST_ADLS_SINK')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_CSV_FROM_BLOB_SINK')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DS_REST_SRC')]",
+			"name": "[concat(parameters('factoryName'), '/DS_CSV_INPUT_SRC')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "LS_REST_SRC",
+					"referenceName": "LS_CSV_INPUT_SRC",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
-				"type": "RestResource",
-				"typeProperties": {},
-				"schema": []
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "csvinput"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "order_id",
+						"type": "String"
+					},
+					{
+						"name": "payment_sequential",
+						"type": "String"
+					},
+					{
+						"name": "payment_type",
+						"type": "String"
+					},
+					{
+						"name": "payment_installments",
+						"type": "String"
+					},
+					{
+						"name": "payment_value",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_REST_SRC')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_CSV_INPUT_SRC')]"
 			]
 		}
 	]
