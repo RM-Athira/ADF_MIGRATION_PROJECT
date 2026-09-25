@@ -61,7 +61,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "PL_CPY_SQL",
+											"referenceName": "PL_CSV",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,

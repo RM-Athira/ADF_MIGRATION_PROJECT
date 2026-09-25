@@ -65,7 +65,10 @@
 											"referenceName": "PL3_CLOUDSTORAGE_CSV_EXCEL",
 											"type": "PipelineReference"
 										},
-										"waitOnCompletion": true
+										"waitOnCompletion": true,
+										"parameters": {
+											"Trigger": "@pipeline().parameters.Trigger"
+										}
 									}
 								}
 							]

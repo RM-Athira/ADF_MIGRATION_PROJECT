@@ -108,9 +108,13 @@
 			}
 		],
 		"parameters": {
-			"Trigger": {
+			"Trigger_Name": {
 				"type": "string",
 				"defaultValue": "@pipeline().parameters.Trigger"
+			},
+			"Trigger": {
+				"type": "string",
+				"defaultValue": "Azure"
 			}
 		},
 		"variables": {
