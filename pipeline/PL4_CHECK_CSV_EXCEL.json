@@ -95,8 +95,7 @@
 		],
 		"parameters": {
 			"Trigger": {
-				"type": "string",
-				"defaultValue": "Tr_sample_csv"
+				"type": "string"
 			}
 		},
 		"annotations": []

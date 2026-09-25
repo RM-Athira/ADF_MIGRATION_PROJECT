@@ -36,7 +36,7 @@
 				"type": "Switch",
 				"dependsOn": [
 					{
-						"activity": "LKUP_L2_TYPE",
+						"activity": "SET_VAR_L2TYPE",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -45,7 +45,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"on": {
-						"value": "@activity('LKUP_L2_TYPE').output.firstRow.L2_switch_type",
+						"value": "@if(\n  greater(length(activity('LKUP_L2_TYPE').output.value),0),\n  activity('LKUP_L2_TYPE').output.value[0].L2_switch_type,\n  'Default'\n)\n",
 						"type": "Expression"
 					},
 					"cases": [
@@ -102,6 +102,30 @@
 							]
 						}
 					]
+				}
+			},
+			{
+				"name": "SET_VAR_L2TYPE",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "LKUP_L2_TYPE",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Mapping",
+					"value": {
+						"value": "@if(\n  greater(length(activity('LKUP_L2_TYPE').output.value),0),\n  activity('LKUP_L2_TYPE').output.value[0].L2_switch_type,\n  'NoRows'\n)",
+						"type": "Expression"
+					}
 				}
 			}
 		],
