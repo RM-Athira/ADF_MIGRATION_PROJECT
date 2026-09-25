@@ -1,0 +1,19 @@
+{
+	"name": "DS_CSV_FROM_BLOB_SINK",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_CSV_FROM_BLOB_SINK",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "csv"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
