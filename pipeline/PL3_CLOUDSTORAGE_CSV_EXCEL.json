@@ -54,7 +54,14 @@
 								{
 									"name": "EXEC_CSV_PL",
 									"type": "ExecutePipeline",
-									"dependsOn": [],
+									"dependsOn": [
+										{
+											"activity": "SET_VARIABLE_3",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
 									"policy": {
 										"secureInput": false
 									},
@@ -84,7 +91,10 @@
 									"userProperties": [],
 									"typeProperties": {
 										"variableName": "Mapping",
-										"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type"
+										"value": {
+											"value": "@pipeline().parameters.Trigger",
+											"type": "Expression"
+										}
 									}
 								}
 							]
@@ -139,7 +149,7 @@
 				"typeProperties": {
 					"variableName": "Mapping",
 					"value": {
-						"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type",
+						"value": "pipeline().parameters.Trigger",
 						"type": "Expression"
 					}
 				}
