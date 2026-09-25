@@ -42,7 +42,7 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"Trigger": {
-							"value": "@pipeline().parameters.Trigger",
+							"value": "@variables('Trigger_variable')",
 							"type": "Expression"
 						}
 					}
