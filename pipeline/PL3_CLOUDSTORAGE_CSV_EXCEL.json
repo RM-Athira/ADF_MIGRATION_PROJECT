@@ -33,9 +33,14 @@
 			{
 				"name": "SWITCH_SRC_CSV_EXCEL",
 				"type": "Switch",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "SET_ACTIVITY_NAME_2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"on": {
@@ -66,6 +71,20 @@
 												"type": "Expression"
 											}
 										}
+									}
+								},
+								{
+									"name": "SET_VARIABLE_3",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "Mapping",
+										"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type"
 									}
 								}
 							]
