@@ -45,7 +45,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"on": {
-						"value": "@if(\n  greater(length(activity('LKUP_L2_TYPE').output.value),0),\n  activity('LKUP_L2_TYPE').output.value[0].L2_switch_type,\n  'Default'\n)\n",
+						"value": "@activity('LKUP_L2_TYPE').output.firstRow.L2_switch_type",
 						"type": "Expression"
 					},
 					"cases": [
@@ -123,7 +123,7 @@
 				"typeProperties": {
 					"variableName": "Mapping",
 					"value": {
-						"value": "@if(\n  greater(length(activity('LKUP_L2_TYPE').output.value),0),\n  activity('LKUP_L2_TYPE').output.value[0].L2_switch_type,\n  'NoRows'\n)",
+						"value": "@activity('LKUP_L2_TYPE').output.firstRow.L2_switch_type",
 						"type": "Expression"
 					}
 				}
