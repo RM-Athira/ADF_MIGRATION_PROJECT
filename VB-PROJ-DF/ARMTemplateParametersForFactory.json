@@ -5,6 +5,9 @@
 		"factoryName": {
 			"value": "VB-PROJ-DF"
 		},
+		"LS_AZSDQL_CSV_METADATA_password": {
+			"value": ""
+		},
 		"LS_AZURE_SRC_DB_password": {
 			"value": ""
 		},
@@ -46,6 +49,15 @@
 		},
 		"LS_SQL_SRC_DB_2_password": {
 			"value": ""
+		},
+		"LS_AZSDQL_CSV_METADATA_properties_typeProperties_server": {
+			"value": "sql-server-db-dev.database.windows.net"
+		},
+		"LS_AZSDQL_CSV_METADATA_properties_typeProperties_database": {
+			"value": " sql-server-db-dev"
+		},
+		"LS_AZSDQL_CSV_METADATA_properties_typeProperties_userName": {
+			"value": "vb_admin"
 		},
 		"LS_AZURE_SRC_DB_properties_typeProperties_server": {
 			"value": "sql-server-db-dev.database.windows.net"
