@@ -416,7 +416,7 @@
 												"waitOnCompletion": true,
 												"parameters": {
 													"Trigger": {
-														"value": "@activity('LKUP_SRC_FILES').output.firstRow.L3_switch_type",
+														"value": "@pipeline().parameters.Trigger",
 														"type": "Expression"
 													}
 												}
@@ -491,7 +491,7 @@
 						"typeProperties": {
 							"variableName": "Mapping",
 							"value": {
-								"value": "pipeline().parameters.Trigger",
+								"value": "@pipeline().parameters.Trigger",
 								"type": "Expression"
 							}
 						}
